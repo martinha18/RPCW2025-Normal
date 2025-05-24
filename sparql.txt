@@ -1,0 +1,309 @@
+12 Quais são os conceitos ensinados por um determinado mestre (arbitra um)?
+
+PREFIX : <http://www.semanticweb.org/marta/ontologies/2025/sapientia#>
+
+SELECT distinct ?cnome
+WHERE {
+  { :Mestre_1 :ensina ?d .
+    ?c a :Conceito;
+        :éEstudadoEm ?d ;
+        :nome ?cnome .
+  } 
+  UNION
+  {
+    ?o a :Obra ;
+        :foiEscritaPor :Mestre_1 ;
+        :explica ?c ;
+        :nome ?cnome .
+  }
+}
+
+
+
+
+13 Que obras explicam o conceito de "Relatividade"?
+
+PREFIX : <http://www.semanticweb.org/marta/ontologies/2025/sapientia#>
+
+SELECT ?t
+WHERE {
+  ?obra :explica ?c ;
+    :título ?t .
+  ?c :nome "Relatividade" .
+}
+
+
+
+
+14 Em que disciplinas se estudam "Ciências Sociais"?
+
+PREFIX : <http://www.semanticweb.org/marta/ontologies/2025/sapientia#>
+
+SELECT ?disciplina
+WHERE {
+  ?d :pertenceA ?tc ;
+    :nome ?disciplina .
+  ?tc :nome "Ciências Sociais" .
+}
+
+
+
+
+15 Qual é a aplicação prática dos conhecimentos em "Lógica Formal"?
+
+PREFIX : <http://www.semanticweb.org/marta/ontologies/2025/sapientia#>
+
+SELECT ?a
+WHERE {
+  ?c :nome "Lógica Formal" ;
+    :temAplicaçãoEm/:nome ?a .
+}
+
+
+
+
+16 Quais disciplinas pertencem ao tipo de conhecimento "Ciências Exatas"?
+
+PREFIX : <http://www.semanticweb.org/marta/ontologies/2025/sapientia#>
+
+SELECT ?disciplina
+WHERE {
+  ?d :pertenceA ?tc ;
+    :nome ?disciplina .
+  ?tc :nome "Ciências Exatas" .
+}
+
+
+
+
+17 Que mestres ensinaram no século XIX?
+
+PREFIX : <http://www.semanticweb.org/marta/ontologies/2025/sapientia#>
+
+SELECT ?mestre
+WHERE {
+  ?m :nome ?mestre ;
+    :viveuEm/:nome "Século XIX" .
+}
+
+
+
+
+18 Que aprendizes estudam "Programação"?
+
+PREFIX : <http://www.semanticweb.org/marta/ontologies/2025/sapientia#>
+
+SELECT ?aprendiz
+WHERE {
+  ?a :nome ?aprendiz ;
+    :aprende ?d .
+  ?c :nome "Programação" ;
+    :éEstudadoEm ?d .
+}
+
+
+
+19 Qual a distribuição de aprendizes por disciplina? (Resultado será uma lista de pares: Disciplina, número de alunos)
+
+PREFIX : <http://www.semanticweb.org/marta/ontologies/2025/sapientia#>
+
+select ?nome (count(?a) as ?ap)
+where {
+    ?d a :Disciplina ;
+    	:nome ?nome .
+    ?a :aprende ?d .
+}
+group by ?nome
+order by desc(?ap)
+
+
+
+
+20 Qual a distribuição de conceitos por período histórico? (Resultado será uma lista de pares: Período, número de conceitos)
+
+PREFIX : <http://www.semanticweb.org/marta/ontologies/2025/sapientia#>
+
+select ?nome (count(?c) as ?conceitos)
+where {
+    ?p a :Periodo ;
+    	:nome ?nome .
+    ?c :surgeEm ?p .
+}
+group by ?nome
+order by desc(?conceitos)
+
+
+
+
+21 Quais os títulos das obras associadas a cada conceito? (Resultado será uma lista de pares: Conceito, Lista de títulos de obras)
+
+PREFIX : <http://www.semanticweb.org/marta/ontologies/2025/sapientia#>
+
+select ?c (group_concat(?o; separator=", ") as ?gc)
+where {
+    ?conceito a :Conceito ;
+    	:nome ?c .
+    ?obra :explica ?conceito;
+    	:título ?o .
+}
+group by ?c
+order by ?c
+
+
+
+
+22 Quais os aprendizes que frequentam cada uma das disciplinas? (Resultado será uma lista de pares: Disciplina, Lista dos nomes dos aprendizes que frequentam a disciplina)
+
+PREFIX : <http://www.semanticweb.org/marta/ontologies/2025/sapientia#>
+
+select ?d (group_concat(?a; separator=", ") as ?gc)
+where {
+    ?disciplina a :Disciplina ;
+    	:nome ?d .
+    ?aprendiz :aprende ?disciplina;
+    	:nome ?a .
+}
+group by ?d
+order by ?d
+
+
+
+
+23 Qual a distribuição de aprendizes por escalões etários? (Resultado será uma lista de pares: Escalão etário, número aprendizes nesse escalão); Considera os seguintes escalões: [17, 34], [35, 44], [45, 54], [55, 64], [65, 74], [75, 100]
+
+PREFIX : <http://www.semanticweb.org/marta/ontologies/2025/sapientia#>
+
+SELECT ?escalao (COUNT(?aprendiz) AS ?numAprendizes)
+WHERE {
+  {
+    ?aprendiz a :Aprendiz ;
+              :idade ?idade .
+    FILTER(?idade >= 17 && ?idade <= 34)
+    VALUES ?escalao { "[17-34]" }
+  }
+  UNION
+  {
+    ?aprendiz a :Aprendiz ;
+              :idade ?idade .
+    FILTER(?idade >= 35 && ?idade <= 44)
+    VALUES ?escalao { "[35-44]" }
+  }
+  UNION
+  {
+    ?aprendiz a :Aprendiz ;
+              :idade ?idade .
+    FILTER(?idade >= 45 && ?idade <= 54)
+    VALUES ?escalao { "[45-54]" }
+  }
+  UNION
+  {
+    ?aprendiz a :Aprendiz ;
+              :idade ?idade .
+    FILTER(?idade >= 55 && ?idade <= 64)
+    VALUES ?escalao { "[55-64]" }
+  }
+  UNION
+  {
+    ?aprendiz a :Aprendiz ;
+              :idade ?idade .
+    FILTER(?idade >= 65 && ?idade <= 74)
+    VALUES ?escalao { "[65-74]" }
+  }
+  UNION
+  {
+    ?aprendiz a :Aprendiz ;
+              :idade ?idade .
+    FILTER(?idade >= 75 && ?idade <= 100)
+    VALUES ?escalao { "[75-100]" }
+  }
+}
+GROUP BY ?escalao
+ORDER BY ?escalao
+
+
+
+
+24 Cria uma nova relação na ontologia, estudaCom, que relaciona um aluno com um mestre;
+
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX : <http://www.semanticweb.org/marta/ontologies/2025/sapientia#>
+
+insert {
+  :estudaCom rdf:type owl:ObjectProperty .
+}
+where {
+    
+}
+
+
+
+
+25 Cria uma query CONSTRUCT para calcular os novos triplos da nova relação estudaCom;
+Altera a query para uma query INSERT e acrescenta esses triplos à ontologia;
+
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX : <http://www.semanticweb.org/marta/ontologies/2025/sapientia#>
+
+construct {
+  ?a :estudaCom ?m .
+}
+where {
+    ?a :aprende ?d .
+    ?m :ensina ?d .
+}
+
+
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX : <http://www.semanticweb.org/marta/ontologies/2025/sapientia#>
+
+insert {
+  ?a :estudaCom ?m .
+}
+where {
+    ?a :aprende ?d .
+    ?m :ensina ?d .
+}
+
+
+
+
+26 Cria uma nova relação na ontologia, dáBasesPara, que relaciona uma disciplina com uma aplicação;
+
+insert {
+  :dáBasesPara rdf:type owl:ObjectProperty .
+}
+where {
+    
+}
+
+
+27 Cria uma query CONSTRUCT para calcular os novos triplos da nova relação dáBasesPara;
+Altera a query para uma query INSERT e acrescenta esses triplos à ontologia.
+
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX : <http://www.semanticweb.org/marta/ontologies/2025/sapientia#>
+
+construct {
+  ?d :dáBasesPara ?a .
+}
+where {
+    ?c :éEstudadoEm ?d ;
+    	:temAplicaçãoEm ?a .
+}
+
+
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX : <http://www.semanticweb.org/marta/ontologies/2025/sapientia#>
+
+insert {
+  ?d :dáBasesPara ?a .
+}
+where {
+    ?c :éEstudadoEm ?d ;
+    	:temAplicaçãoEm ?a .
+}
